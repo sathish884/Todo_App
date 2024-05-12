@@ -16,3 +16,16 @@
 .form-select {
   width: 100px;
 }
+
+.col-sm-12,  .col-md-12{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.todo-card-row{
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.card{
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}

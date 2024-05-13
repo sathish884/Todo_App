@@ -11,26 +11,77 @@ function Todo() {
         }
     ]);
 
-    // Function to add new form data
-    const addForms = () => {
-        // Get input values from DOM
-        const nameInput = document.getElementById("nameInput").value;
-        const descriptionInput = document.getElementById("descriptionInput").value;
+    // State to track the index of the todo item being edited
+    const [editIndex, setEditIndex] = useState(null);
 
-        // Update formData state with new data
-        setFormData([
-            ...formData,
-            {
-                name: nameInput,
-                description: descriptionInput,
-                status: "Not Completed"
-            }
-        ]);
-
-
+    // Function to add or update form data
+    const addOrUpdateForms = () => {
+        if (editIndex !== null) {
+            // If editIndex is not null, it means we're editing an existing todo item
+            updateTodo(); // Call updateTodo function to update the todo item
+        } else {
+            // Otherwise, we're adding a new todo item
+            const nameInput = document.getElementById("nameInput").value;
+            const descriptionInput = document.getElementById("descriptionInput").value;
+            // Update formData state with new data
+            setFormData([
+                ...formData,
+                {
+                    name: nameInput,
+                    description: descriptionInput,
+                    status: "Not Completed"
+                }
+            ]);
+        }
         // Clear input fields
         document.getElementById("todoForm").reset();
     };
+
+    // Function to edit a todo item
+    const editTodo = (index) => {
+        // Set the index of the todo item being edited
+        setEditIndex(index);
+        // Retrieve the todo item at the specified index
+        const todoToEdit = formData[index];
+        // Populate input fields with todo item values
+        document.getElementById("nameInput").value = todoToEdit.name;
+        document.getElementById("descriptionInput").value = todoToEdit.description;
+    };
+
+    // Function to update the edited todo item
+    const updateTodo = () => {
+        // Retrieve updated values from input fields
+        const updatedName = document.getElementById("nameInput").value;
+        const updatedDescription = document.getElementById("descriptionInput").value;
+        // Update the todo item at the editIndex with the new values
+        const updatedFormData = [...formData];
+        updatedFormData[editIndex].name = updatedName;
+        updatedFormData[editIndex].description = updatedDescription;
+        // Update the formData state with the modified todo item
+        setFormData(updatedFormData);
+        // Reset the editIndex state
+        setEditIndex(null);
+    };
+
+    // Function to delete a todo item
+    const deeleteTodo = (index) => {
+        // Filter out the todo item at the specified index
+        const updatedTodos = formData.filter((_, i) => i !== index);
+        // Update formData state
+        setFormData(updatedTodos);
+    }
+
+    // Define state for filter option
+    const [filterOption, setFilterOption] = useState("all");
+
+    // Filter todos based on filterOption
+    const filteredTodos = formData.filter(todo => {
+        if (filterOption === 'all') {
+            return true;
+        }
+        // Convert both to lowercase for case-insensitive comparison
+        return todo.status.toLowerCase() === filterOption.toLowerCase();
+    });
 
     // Function to handle button click to toggle status
     const handleBtnStatus = (index) => {
@@ -41,26 +92,6 @@ function Todo() {
         // Update formData state
         setFormData(updatedStatus);
     };
-
-    // Define state for filter option
-    const [filterOption, setFilterOption] = useState("all");
-
-    // Function to delete a todo item
-    const deeleteTodo = (index) => {
-        // Filter out the todo item at the specified index
-        const updatedTodos = formData.filter((_, i) => i !== index);
-        // Update formData state
-        setFormData(updatedTodos);
-    }
-
-    // Filter todos based on filterOption
-    const filteredTodos = formData.filter(todo => {
-        if (filterOption === 'all') {
-            return true;
-        }
-        // Convert both to lowercase for case-insensitive comparison
-        return todo.status.toLowerCase() === filterOption.toLowerCase();
-    });
 
     // Return JSX for the component
     return (
@@ -81,7 +112,7 @@ function Todo() {
                         </div>
                         <div className="row px-5 pb-3">
                             <div className="col fiter-btns">
-                                <button type="button" className="btn btn-warning" onClick={addForms}>Add</button>
+                                <button type="button" className="btn btn-warning" onClick={addOrUpdateForms}>Save</button>
                                 <select className='form-select bg-warning' onChange={(e) => setFilterOption(e.target.value)}>
                                     <option value="all">All</option>
                                     <option value="not completed">Not Completed</option>
@@ -100,11 +131,11 @@ function Todo() {
                                     <div className="card-body">
                                         <p className="card-title">Name: {items.name}</p>
                                         <p className="card-text">Description: {items.description}</p>
-                                        <p>Status: {items.status}</p>
+                                        <p>Status: <button className="btn btn-secondary" onClick={() => handleBtnStatus(index)}>{items.status}</button></p>
                                         {/* Buttons to toggle status and delete todo */}
-                                        <div >
-                                            <button className="btn btn-primary" onClick={() => handleBtnStatus(index)}>{items.status}</button>
-                                            <button className='btn btn-danger ms-3' onClick={() => deeleteTodo(index)}>Delete</button>
+                                        <div className='btns'>
+                                            <button className="btn btn-primary" onClick={() => editTodo(index)}>Edit</button>
+                                            <button className='btn btn-danger' onClick={() => deeleteTodo(index)}>Delete</button>
                                         </div>
                                     </div>
                                 </div>
